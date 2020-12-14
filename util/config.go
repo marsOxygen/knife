@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/BurntSushi/toml"
+	"github.com/satori/go.uuid"
 	"os/user"
 )
 
@@ -23,6 +24,11 @@ func GetRepoCachePath() string {
 
 func GetConfigPath() string {
 	return fmt.Sprintf("%s/%s", GetConfigDir(), "config.toml")
+}
+
+func GetTmpDir() string {
+	tmpDir := fmt.Sprintf("%s/tmp_%s", GetConfigDir(), uuid.NewV4().String())
+	return tmpDir
 }
 
 type Config struct {

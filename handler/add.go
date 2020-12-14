@@ -2,9 +2,10 @@ package handler
 
 import (
 	"fmt"
-	. "github.com/landingwind/knife/util"
 	"os"
 	"strings"
+
+	. "github.com/landingwind/knife/util"
 )
 
 func Add() {
@@ -17,12 +18,22 @@ func Add() {
 	// get repo cache
 	repoCache := LoadRepoCache()
 
-	localPath := generateDir(config, repoPath)
-	addToRepoCache(repoCache, repoPath, localPath)
-	ExecCommandWhileOutput("git", "clone", repoPath, "--progress", localPath)
+	localPath := getLocalPath(config, repoPath)
+	tmpDir := GetTmpDir()
+	stdout, stderr := ExecCmdWhileOutput("git", "clone", repoPath, "--progress", tmpDir)
+	if JudgeGitCloneSuccess(stdout, stderr) {
+		MkDirAll(localPath, os.ModePerm)
+		fmt.Println("===$$$===")
+		ExecCmdWhileOutput("/bin/sh", "-c", fmt.Sprintf("mv %s/* %s", tmpDir, localPath))
+		ExecCmdWhileOutput("rm", "-rf", tmpDir)
+		fmt.Println("git clone successfully")
+		addToRepoCache(repoCache, repoPath, localPath)
+	} else {
+		fmt.Println("git clone fail")
+	}
 }
 
-func generateDir(config *Config, repoPath string) string {
+func getLocalPath(config *Config, repoPath string) string {
 	// remove prefix and postfix
 	prefixPos := strings.Index(repoPath, "://")
 	if prefixPos != -1 {
@@ -36,7 +47,6 @@ func generateDir(config *Config, repoPath string) string {
 	if PathExist(dirPath) {
 		panic("repo exists already")
 	}
-	MkDirAll(dirPath, os.ModePerm)
 	return dirPath
 }
 
