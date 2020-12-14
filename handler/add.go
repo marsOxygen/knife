@@ -23,11 +23,11 @@ func Add() {
 	stdout, stderr := ExecCmdWhileOutput("git", "clone", repoPath, "--progress", tmpDir)
 	if JudgeGitCloneSuccess(stdout, stderr) {
 		MkDirAll(localPath, os.ModePerm)
-		fmt.Println("===$$$===")
 		ExecCmdWhileOutput("/bin/sh", "-c", fmt.Sprintf("mv %s/* %s", tmpDir, localPath))
 		ExecCmdWhileOutput("rm", "-rf", tmpDir)
 		fmt.Println("git clone successfully")
 		addToRepoCache(repoCache, repoPath, localPath)
+		StoreRepoCache(repoCache)
 	} else {
 		fmt.Println("git clone fail")
 	}

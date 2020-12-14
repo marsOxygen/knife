@@ -52,9 +52,7 @@ func initRepoCache() {
 		fmt.Println("repo_cache.json exists")
 		return
 	}
-	file := MkFile(repoCachePath)
-	WriteToFile(file, repoCacheTemplate)
-	_ = file.Close()
+	WriteToFile(repoCachePath, repoCacheTemplate)
 }
 
 func initConfig() {
@@ -63,7 +61,5 @@ func initConfig() {
 		fmt.Println("config.toml exists")
 		return
 	}
-	file := MkFile(configFilePath)
-	WriteToFile(file, strings.ReplaceAll(configTemplate, "$HOME", GetHomeDir()))
-	_ = file.Close()
+	WriteToFile(configFilePath, strings.ReplaceAll(configTemplate, "$HOME", GetHomeDir()))
 }

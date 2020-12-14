@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/BurntSushi/toml"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 	"os/user"
 )
 
@@ -65,4 +65,10 @@ func LoadRepoCache() *RepoCache {
 	err := json.Unmarshal(ReadFileAll(GetRepoCachePath()), &repoCache)
 	Check(err, err)
 	return &repoCache
+}
+
+func StoreRepoCache(repoCache *RepoCache) {
+	content, err := json.MarshalIndent(repoCache, "", "\t")
+	Check(err, err)
+	OverWriteFile(GetRepoCachePath(), content)
 }

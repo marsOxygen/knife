@@ -28,15 +28,16 @@ func SafeLoad(source []string, index int, errDesc string) string {
 	return source[index]
 }
 
-func pipeOutput(reader io.ReadCloser, strb *strings.Builder) error {
+func pipeOutput(reader io.ReadCloser, strb *strings.Builder) {
 	buf := make([]byte, 1024)
 	for {
 		num, err := reader.Read(buf)
 		if err != nil {
 			if err != io.EOF {
-				return err
+				fmt.Println("pipeOutput: ", err)
+				return
 			}
-			return nil
+			return
 		}
 		if num > 0 {
 			strb.Write(buf[:num])

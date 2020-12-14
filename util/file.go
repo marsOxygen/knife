@@ -28,15 +28,34 @@ func MkFile(path string) *os.File {
 	return file
 }
 
-func WriteToFile(file *os.File, content string) {
+func WriteToFile(path string, content string) {
+	file := MkFile(path)
+	defer func() {
+		_ = file.Close()
+	}()
 	_, err := file.Write([]byte(content))
 	Check(err, "fail to write file: "+file.Name())
 }
 
 func ReadFileAll(path string) []byte {
+	defer PanicRecover()
 	file, err := os.Open(path)
+	defer func() {
+		_ = file.Close()
+	}()
 	Check(err, "cannot read file: "+path)
 	content, readErr := ioutil.ReadAll(file)
 	Check(readErr, readErr)
 	return content
+}
+
+func OverWriteFile(path string, content []byte) {
+	defer PanicRecover()
+	file, openErr := os.OpenFile(path, os.O_TRUNC|os.O_WRONLY, os.ModePerm)
+	defer func() {
+		_ = file.Close()
+	}()
+	Check(openErr, openErr)
+	_, err := file.Write(content)
+	Check(err, err)
 }
