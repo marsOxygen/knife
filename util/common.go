@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"github.com/manifoldco/promptui"
 	"io"
 	"os/exec"
 	"strings"
@@ -102,4 +103,10 @@ func JudgeGitCloneSuccess(stdout string, stderr string) bool {
 		return false
 	}
 	return true
+}
+
+func RunSelectCommand(selects promptui.Select) string {
+	_, result, err := selects.Run()
+	Check(err, err)
+	return result
 }

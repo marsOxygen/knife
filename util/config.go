@@ -54,10 +54,11 @@ func LoadConfig() *Config {
 }
 
 type RepoCache struct {
-	Repos []struct {
-		RepoPath  string
-		LocalPath string
-	}
+	Repos []RepoStruct
+}
+type RepoStruct struct {
+	RepoPath  string
+	LocalPath string
 }
 
 func LoadRepoCache() *RepoCache {

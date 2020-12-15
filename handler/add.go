@@ -57,11 +57,7 @@ func addToRepoCache(repoCache *RepoCache, repoPath string, localPath string) {
 			return
 		}
 	}
-	type Repo struct {
-		RepoPath  string
-		LocalPath string
-	}
-	newRepo := Repo{
+	newRepo := RepoStruct{
 		RepoPath:  repoPath,
 		LocalPath: localPath,
 	}
