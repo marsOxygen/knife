@@ -8,22 +8,28 @@ import (
 )
 
 const configTemplate = `[basic]
-codeDir = "$HOME/code"
+codeDir = "$HOME/knife"
 
-# you can define multi git envs
+# you can define multi patterns
 # will refer according the order
-[[gitEnv]]
-pattern = "*github.com*"
-email = ""
-name = ""
-[[gitEnv]]
-pattern = "*gitlab.com*"
-email = ""
-name = ""
-[[gitEnv]]
-pattern = "*"
-email = ""
-name = ""`
+[[match]]
+pattern = ".*github\\.com.*"
+[match.data]
+email = "eg@gmail.com"
+name = "egUser"
+[match.hook]
+postAdd = ["gitUserConfig", "cdRepoPath", "showGitConfig"]
+
+[[match]]
+pattern = ".*gitlab\\.com.*"
+[[match]]
+pattern = ".*"
+
+[lollipop]
+gitUserConfig = "module:gitUserConfig"
+showGitConfig = "git config -l"
+cdRepoPath = "module:cdRepoPath"
+`
 
 const repoCacheTemplate = `{
 	"repos": []

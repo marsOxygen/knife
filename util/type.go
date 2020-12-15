@@ -1,16 +1,17 @@
 package util
 
 type Config struct {
-	Basic  BasicConfig
-	GitEnv []GitEnv
+	Basic    BasicConfig
+	Match    []MatchConfig
+	Lollipop map[string]string
 }
 type BasicConfig struct {
 	CodeDir string
 }
-type GitEnv struct {
+type MatchConfig struct {
 	Pattern string
-	Email   string
-	Name    string
+	Data    map[string]string
+	Hook    map[string][]string
 }
 
 type RepoCache struct {

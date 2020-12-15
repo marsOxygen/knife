@@ -4,6 +4,7 @@ import (
 	"fmt"
 	. "github.com/landingwind/knife/util"
 	"github.com/manifoldco/promptui"
+	"io/ioutil"
 	"os"
 	"strings"
 	"sync"
@@ -11,7 +12,6 @@ import (
 
 func Remove() {
 	defer PanicRecover()
-
 	chooseRepo, err := SearchRepo()
 	Check(err, err)
 
@@ -42,6 +42,19 @@ func Remove() {
 			}()
 			err := os.RemoveAll(chooseRepo.LocalPath)
 			Check(err, "cannot remove repo dir")
+			parentDir := chooseRepo.LocalPath[:strings.LastIndex(chooseRepo.LocalPath, "/")]
+			files, _ := ioutil.ReadDir(parentDir)
+			childDirNumber := 0
+			for _, file := range files {
+				fmt.Println(file.Name())
+				if strings.HasPrefix(file.Name(), ".") {
+					continue
+				}
+				childDirNumber++
+			}
+			if childDirNumber == 0 {
+				_ = os.RemoveAll(parentDir)
+			}
 		}()
 		wg.Wait()
 		fmt.Println("remove repo successfully")

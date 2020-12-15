@@ -6,6 +6,7 @@ import (
 	"github.com/BurntSushi/toml"
 	uuid "github.com/satori/go.uuid"
 	"os/user"
+	"regexp"
 )
 
 func GetHomeDir() string {
@@ -50,4 +51,15 @@ func StoreRepoCache(repoCache *RepoCache) {
 	content, err := json.MarshalIndent(repoCache, "", "\t")
 	Check(err, err)
 	OverWriteFile(GetRepoCachePath(), content)
+}
+
+func GetPatternMatch(config *Config, repoPath string) *MatchConfig {
+	for _, v := range config.Match {
+		matched, _ := regexp.MatchString(v.Pattern, repoPath)
+		fmt.Println(matched, v.Pattern, repoPath)
+		if matched {
+			return &v
+		}
+	}
+	return nil
 }

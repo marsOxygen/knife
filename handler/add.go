@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/landingwind/knife/hook"
 	. "github.com/landingwind/knife/util"
 )
 
@@ -18,6 +19,8 @@ func Add() {
 	// get repo cache
 	repoCache := LoadRepoCache()
 
+	patternMatch := GetPatternMatch(config, repoPath)
+
 	localPath := getLocalPath(config, repoPath)
 	tmpDir := GetTmpDir()
 	stdout, stderr := ExecCmdWhileOutput("git", "clone", repoPath, "--progress", tmpDir)
@@ -28,6 +31,8 @@ func Add() {
 		fmt.Println("git clone successfully")
 		addToRepoCache(repoCache, repoPath, localPath)
 		StoreRepoCache(repoCache)
+		// hook
+		hook.RunPostAdd(patternMatch)
 	} else {
 		fmt.Println("git clone fail")
 	}
