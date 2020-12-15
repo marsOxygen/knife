@@ -51,10 +51,9 @@ func getLocalPath(config *Config, repoPath string) string {
 }
 
 func addToRepoCache(repoCache *RepoCache, repoPath string, localPath string) {
-	// check repo if cloned already
 	for _, repo := range repoCache.Repos {
-		if repo.LocalPath == localPath {
-			return
+		if repo.RepoPath == repoPath {
+			repo.LocalPath = localPath
 		}
 	}
 	newRepo := RepoStruct{

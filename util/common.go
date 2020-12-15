@@ -1,9 +1,11 @@
 package util
 
 import (
+	"errors"
 	"fmt"
 	"github.com/manifoldco/promptui"
 	"io"
+	"os"
 	"os/exec"
 	"strings"
 	"sync"
@@ -75,16 +77,6 @@ func ExecCmdWhileOutput(name string, args ...string) (string, string) {
 	return stdoutBuilder.String(), stderrBuilder.String()
 }
 
-func ExecCmdAndOutput(name string, args ...string) {
-	defer PanicRecover()
-	cmd := exec.Command(name, args...)
-	output, err := cmd.CombinedOutput()
-	Check(err, err)
-	if len(output) > 0 {
-		fmt.Printf(string(output))
-	}
-}
-
 func ExecCmd(name string, args ...string) {
 	defer PanicRecover()
 	cmd := exec.Command(name, args...)
@@ -93,9 +85,6 @@ func ExecCmd(name string, args ...string) {
 }
 
 func JudgeGitCloneSuccess(stdout string, stderr string) bool {
-	// fmt.Println("JudgeGitCloneSuccess")
-	// fmt.Println("stdout", stdout)
-	// fmt.Println("stderr", stderr)
 	if stdout == "" && stderr == "" {
 		return false
 	}
@@ -105,8 +94,47 @@ func JudgeGitCloneSuccess(stdout string, stderr string) bool {
 	return true
 }
 
-func RunSelectCommand(selects promptui.Select) string {
-	_, result, err := selects.Run()
-	Check(err, err)
-	return result
+func SearchRepo() (*RepoStruct, error) {
+	args := os.Args
+	searchErrDesc := "no search item"
+	searchText := strings.TrimSpace(SafeLoad(args, 2, searchErrDesc))
+	if searchText == "" {
+		panic(searchErrDesc)
+	}
+
+	config := LoadConfig()
+	repoCache := LoadRepoCache()
+	searchedReposKeys, searchedRepos := searchRepoReduce(repoCache, searchText, config)
+
+	var chooseKey string
+	if len(searchedReposKeys) == 0 {
+		return nil, errors.New("cannot find repo")
+	}
+	if len(searchedReposKeys) == 1 {
+		chooseKey = searchedReposKeys[0]
+	} else {
+		selects := promptui.Select{
+			Label: "Select the Repo",
+			Items: searchedReposKeys,
+			Size:  10,
+		}
+		_, result, err := selects.Run()
+		Check(err, err)
+		chooseKey = result
+	}
+	chooseRepo := searchedRepos[chooseKey]
+	return &chooseRepo, nil
+}
+
+func searchRepoReduce(repoCache *RepoCache, searchText string, config *Config) ([]string, map[string]RepoStruct) {
+	res := map[string]RepoStruct{}
+	var keys []string
+	for _, v := range repoCache.Repos {
+		if strings.Contains(v.RepoPath, searchText) {
+			key := strings.TrimLeft(v.LocalPath, config.Basic.CodeDir)
+			keys = append(keys, key)
+			res[key] = v
+		}
+	}
+	return keys, res
 }

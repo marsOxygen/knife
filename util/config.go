@@ -31,34 +31,12 @@ func GetTmpDir() string {
 	return tmpDir
 }
 
-type Config struct {
-	Basic  BasicConfig
-	GitEnv []GitEnv
-}
-type BasicConfig struct {
-	CodeDir string
-}
-type GitEnv struct {
-	Pattern string
-	Email   string
-	Name    string
-}
-
 func LoadConfig() *Config {
 	var config Config
 	if _, err := toml.DecodeFile(GetConfigPath(), &config); err != nil {
 		panic(err)
 	}
-	//fmt.Printf("%#+v", config)
 	return &config
-}
-
-type RepoCache struct {
-	Repos []RepoStruct
-}
-type RepoStruct struct {
-	RepoPath  string
-	LocalPath string
 }
 
 func LoadRepoCache() *RepoCache {
