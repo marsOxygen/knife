@@ -18,21 +18,26 @@ func Add() {
 	config := LoadConfig()
 	// get repo cache
 	repoCache := LoadRepoCache()
-
 	patternMatch := GetPatternMatch(config, repoPath)
+	hookEnv := &hook.HookEnv{
+		PatternMatch: patternMatch,
+		Config:       config,
+	}
 
 	localPath := getLocalPath(config, repoPath)
 	tmpDir := GetTmpDir()
 	stdout, stderr := ExecCmdWhileOutput("git", "clone", repoPath, "--progress", tmpDir)
 	if JudgeGitCloneSuccess(stdout, stderr) {
 		MkDirAll(localPath, os.ModePerm)
-		ExecCmdWhileOutput("/bin/sh", "-c", fmt.Sprintf("mv %s/* %s", tmpDir, localPath))
+		ExecCmdWhileOutput("/bin/sh", "-c", fmt.Sprintf("cp -r %s/. %s", tmpDir, localPath))
 		ExecCmdWhileOutput("rm", "-rf", tmpDir)
 		fmt.Println("git clone successfully")
 		addToRepoCache(repoCache, repoPath, localPath)
 		StoreRepoCache(repoCache)
 		// hook
-		hook.RunPostAdd(patternMatch)
+		hookEnv.RepoLocalPath = localPath
+		hookEnv.RepoRemotePath = repoPath
+		hookEnv.RunPostAdd()
 	} else {
 		fmt.Println("git clone fail")
 	}

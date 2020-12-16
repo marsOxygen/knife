@@ -46,7 +46,6 @@ func Remove() {
 			files, _ := ioutil.ReadDir(parentDir)
 			childDirNumber := 0
 			for _, file := range files {
-				fmt.Println(file.Name())
 				if strings.HasPrefix(file.Name(), ".") {
 					continue
 				}
