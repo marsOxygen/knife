@@ -56,7 +56,6 @@ func StoreRepoCache(repoCache *RepoCache) {
 func GetPatternMatch(config *Config, repoPath string) *MatchConfig {
 	for _, v := range config.Match {
 		matched, _ := regexp.MatchString(v.Pattern, repoPath)
-		fmt.Println(matched, v.Pattern, repoPath)
 		if matched {
 			return &v
 		}

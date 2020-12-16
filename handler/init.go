@@ -26,14 +26,27 @@ pattern = ".*gitlab\\.com.*"
 pattern = ".*"
 
 [lollipop]
-gitUserConfig = "module:gitUserConfig"
+gitUserConfig = "method:GitUserConfig"
 showGitConfig = "git config -l"
-cdRepoPath = "module:cdRepoPath"
+cdRepoPath = "sh ~/.knife/cdrepo.sh $REPO_LOCAL_PATH"
 `
 
 const repoCacheTemplate = `{
 	"repos": []
 }`
+
+const cdRepoScriptTemplate = `
+#! /bin/bash
+
+cdPath="cd $1"
+echo $cdPath
+
+osascript <<EOF
+tell application "Terminal"
+    do script "$cdPath"
+end tell
+EOF
+`
 
 func Init() {
 	defer PanicRecover()
@@ -41,6 +54,8 @@ func Init() {
 	initKnifeDir()
 	initConfig()
 	initRepoCache()
+	// init some shell scripts
+	initExampleScript()
 
 	fmt.Println("knife inits successfully!")
 }
@@ -68,4 +83,12 @@ func initConfig() {
 		return
 	}
 	WriteToFile(configFilePath, strings.ReplaceAll(configTemplate, "$HOME", GetHomeDir()))
+}
+
+func initExampleScript() {
+	cdRepoScriptPath := fmt.Sprintf("%s/%s", GetConfigDir(), "cdrepo.sh")
+	if PathExist(cdRepoScriptPath) {
+		return
+	}
+	WriteToFile(cdRepoScriptPath, cdRepoScriptTemplate)
 }
